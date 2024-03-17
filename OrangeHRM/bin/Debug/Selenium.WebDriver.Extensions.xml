@@ -1,0 +1,489 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Selenium.WebDriver.Extensions</name>
+    </assembly>
+    <members>
+        <member name="T:Selenium.WebDriver.Extensions.By">
+            <summary>Extends the selenium <see cref="T:OpenQA.Selenium.By" /> additional selectors to be used.</summary>
+            <remarks>
+            This class shadows all of the static members of the <see cref="T:OpenQA.Selenium.By" />. The reason for that is to
+            replace the type of the returned selectors to further expand their possibilities.
+            </remarks>
+            <inheritdoc />
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.ClassName(System.String)">
+            <summary>Gets a mechanism to find elements by their CSS class.</summary>
+            <param name="classNameToFind">The CSS class to find.</param>
+            <returns>A <see cref="T:OpenQA.Selenium.By" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.CssSelector(System.String)">
+            <summary>Gets a mechanism to find elements by their cascading style sheet (CSS) selector.</summary>
+            <param name="cssSelectorToFind">The CSS selector to find.</param>
+            <returns>A <see cref="T:OpenQA.Selenium.By" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.Id(System.String)">
+            <summary>Gets a mechanism to find elements by their ID.</summary>
+            <param name="idToFind">The ID to find.</param>
+            <returns>A <see cref="T:OpenQA.Selenium.By" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.JQuerySelector(System.String,Selenium.WebDriver.Extensions.JQuerySelector,System.String)">
+            <summary>Gets a mechanism to find elements matching jQuery selector.</summary>
+            <param name="selector">A string containing a selector expression.</param>
+            <param name="context">A DOM Element, Document, or jQuery selector to use as context.</param>
+            <param name="variable">A variable that has been assigned to jQuery.</param>
+            <returns>A <see cref="M:Selenium.WebDriver.Extensions.By.JQuerySelector(System.String,Selenium.WebDriver.Extensions.JQuerySelector,System.String)" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.LinkText(System.String)">
+            <summary>Gets a mechanism to find elements by their link text.</summary>
+            <param name="linkTextToFind">The link text to find.</param>
+            <returns>A <see cref="T:OpenQA.Selenium.By" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.Name(System.String)">
+            <summary>Gets a mechanism to find elements by their name.</summary>
+            <param name="nameToFind">The name to find.</param>
+            <returns>A <see cref="T:OpenQA.Selenium.By" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.PartialLinkText(System.String)">
+            <summary>Gets a mechanism to find elements by a partial match on their link text.</summary>
+            <param name="partialLinkTextToFind">The partial link text to find.</param>
+            <returns>A <see cref="T:OpenQA.Selenium.By" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.SizzleSelector(System.String,Selenium.WebDriver.Extensions.SizzleSelector)">
+            <summary>Gets a mechanism to find elements matching Sizzle selector.</summary>
+            <param name="selector">A string containing a selector expression.</param>
+            <param name="context">A DOM Element, Document, or Sizzle selector to use as context.</param>
+            <returns>A <see cref="M:Selenium.WebDriver.Extensions.By.JQuerySelector(System.String,Selenium.WebDriver.Extensions.JQuerySelector,System.String)" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.TagName(System.String)">
+            <summary>Gets a mechanism to find elements by their tag name.</summary>
+            <param name="tagNameToFind">The tag name to find.</param>
+            <returns>A <see cref="T:OpenQA.Selenium.By" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.By.XPath(System.String)">
+            <summary>
+            Gets a mechanism to find elements by an XPath query. When searching within a <see cref="T:OpenQA.Selenium.IWebElement" />
+            using xpath be aware that <see cref="T:OpenQA.Selenium.IWebDriver" /> follows standard conventions: a search prefixed with
+            <c>"//"</c> will search the entire document, not just the children of this current node. Use <c>".//"</c>
+            to limit your search to the children of this <see cref="T:OpenQA.Selenium.IWebElement" />.
+            </summary>
+            <param name="xpathToFind">The XPath query to use.</param>
+            <returns>A <see cref="T:OpenQA.Selenium.By" /> object the driver can use to find the elements.</returns>
+        </member>
+        <member name="T:Selenium.WebDriver.Extensions.ISelector">
+            <summary>The selector interface.</summary>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.ISelector.CheckScript">
+            <summary>
+            Gets the JavaScript to check if the prerequisites for the selector call have been met. The script should
+            return <see langword="true" /> if the prerequisites are met; otherwise, <see langword="false" />.
+            </summary>
+        </member>
+        <member name="T:Selenium.WebDriver.Extensions.JQuerySelector">
+            <summary>Searches the DOM elements using jQuery selector.</summary>
+            <inheritdoc />
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.#ctor(System.String)">
+            <summary>Initializes a new instance of the <see cref="T:Selenium.WebDriver.Extensions.JQuerySelector" /> class.</summary>
+            <param name="selector">A string containing a selector expression.</param>
+            <remarks>
+            This constructor cannot be merged with <see
+            cref="M:Selenium.WebDriver.Extensions.JQuerySelector.#ctor(System.String,Selenium.WebDriver.Extensions.JQuerySelector,System.String,System.String)" />
+            constructor as it is resolved by reflection.
+            </remarks>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.#ctor(System.String,Selenium.WebDriver.Extensions.JQuerySelector,System.String,System.String)">
+            <summary>Initializes a new instance of the <see cref="T:Selenium.WebDriver.Extensions.JQuerySelector" /> class.</summary>
+            <param name="selector">A string containing a selector expression.</param>
+            <param name="context">A DOM Element, Document, or jQuery to use as context.</param>
+            <param name="variable">A variable that has been assigned to jQuery.</param>
+            <param name="chain">The jQuery method chain.</param>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.JQuerySelector.Empty">
+            <summary>Gets the empty selector.</summary>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.JQuerySelector.CheckScript">
+            <inheritdoc />
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.JQuerySelector.Selector">
+            <inheritdoc />
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.JQuerySelector.Variable">
+            <summary>Gets the variable that has been assigned to jQuery.</summary>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.JQuerySelector.ResultResolver">
+            <inheritdoc />
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Add(System.String)">
+            <summary>Adds elements to the set of matched elements.</summary>
+            <param name="selector">
+            A string representing a selector expression to find additional elements to add to the set of matched
+            elements.
+            </param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Add(System.String,Selenium.WebDriver.Extensions.JQuerySelector)">
+            <summary>Adds elements to the set of matched elements.</summary>
+            <param name="selector">
+            A string representing a selector expression to find additional elements to add to the set of matched
+            elements.
+            </param>
+            <param name="context">The jQuery context selector.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.AddBack(System.String)">
+            <summary>
+            Add the previous set of elements on the stack to the current set, optionally filtered by a selector.
+            </summary>
+            <param name="selector">
+            A string containing a selector expression to match the current set of elements against.
+            </param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.AndSelf">
+            <summary>Add the previous set of elements on the stack to the current set.</summary>
+            <returns>The Selenium jQuery selector.</returns>
+            <remarks>While this method is obsolete in jQuery 1.8+ we will support it.</remarks>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Children(System.String)">
+            <summary>
+            Get the children of each element in the set of matched elements, optionally filtered by a selector.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Closest(System.String)">
+            <summary>
+            For each element in the set, get the first element that matches the selector by testing the element itself
+            and traversing up through its ancestors in the DOM tree.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Closest(System.String,Selenium.WebDriver.Extensions.JQuerySelector)">
+            <summary>
+            For each element in the set, get the first element that matches the selector by testing the element itself
+            and traversing up through its ancestors in the DOM tree.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <param name="context">The jQuery context selector.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Contents">
+            <summary>
+            Get the children of each element in the set of matched elements, including text and comment nodes.
+            </summary>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.End">
+            <summary>
+            End the most recent filtering operation in the current chain and return the set of matched elements to its
+            previous state.
+            </summary>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Eq(System.Int32)">
+            <summary>Reduce the set of matched elements to the one at the specified index.</summary>
+            <param name="index">An integer indicating the 0-based position of the element.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Even">
+            <summary>Reduce the set of matched elements to the even ones in the set, numbered from zero.</summary>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Filter(System.String)">
+            <summary>
+            Reduce the set of matched elements to those that match the selector or pass the function's test.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Find(System.String)">
+            <summary>
+            Get the descendants of each element in the current set of matched elements, filtered by a selector, jQuery
+            object, or element.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.First">
+            <summary>Reduce the set of matched elements to the first in the set.</summary>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Has(System.String)">
+            <summary>
+            Reduce the set of matched elements to those that have a descendant that matches the selector or DOM
+            element.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Is(System.String)">
+            <summary>
+            Check the current matched set of elements against a selector, element, or jQuery object and return
+            <see langword="true" /> if at least one of these elements matches the given arguments.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Last">
+            <summary>Reduce the set of matched elements to the final one in the set.</summary>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Next(System.String)">
+            <summary>
+            Get the immediately following sibling of each element in the set of matched elements. If a selector is
+            provided, it retrieves the next sibling only if it matches that selector.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.NextAll(System.String)">
+            <summary>
+            Get all following siblings of each element in the set of matched elements, optionally filtered by a
+            selector.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.NextUntil(System.String,System.String)">
+            <summary>
+            Get all following siblings of each element up to but not including the element matched by the selector,
+            DOM node, or jQuery object passed.
+            </summary>
+            <param name="selector">
+            A string containing a selector expression to indicate where to stop matching following sibling elements.
+            </param>
+            <param name="filter">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Not(System.String)">
+            <summary>Remove elements from the set of matched elements.</summary>
+            <param name="selector">
+            A string containing a selector expression, a DOM element, or an array of elements to match against the set.
+            </param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Odd">
+            <summary>Reduce the set of matched elements to the odd ones in the set, numbered from zero.</summary>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.OffsetParent">
+            <summary>Get the closest ancestor element that is positioned.</summary>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Parent(System.String)">
+            <summary>
+            Get the parent of each element in the current set of matched elements, optionally filtered by a selector.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Parents(System.String)">
+            <summary>
+            Get the ancestors of each element in the current set of matched elements, optionally filtered by a
+            selector.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.ParentsUntil(System.String,System.String)">
+            <summary>
+            Get the ancestors of each element in the current set of matched elements, up to but not including the
+            element matched by the selector, DOM node, or jQuery object.
+            </summary>
+            <param name="selector">
+            A string containing a selector expression to indicate where to stop matching ancestor elements.
+            </param>
+            <param name="filter">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Prev(System.String)">
+            <summary>
+            Get the immediately preceding sibling of each element in the set of matched elements, optionally filtered
+            by a selector.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.PrevAll(System.String)">
+            <summary>
+            Get all preceding siblings of each element in the set of matched elements, optionally filtered by a
+            selector.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.PrevUntil(System.String,System.String)">
+            <summary>
+            Get all preceding siblings of each element up to but not including the element matched by the selector,
+            DOM node, or jQuery object.
+            </summary>
+            <param name="selector">
+            A string containing a selector expression to indicate where to stop matching preceding sibling elements.
+            </param>
+            <param name="filter">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Siblings(System.String)">
+            <summary>
+            Get the siblings of each element in the set of matched elements, optionally filtered by a selector.
+            </summary>
+            <param name="selector">A string containing a selector expression to match elements against.</param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.Slice(System.Int32,System.Nullable{System.Int32})">
+            <summary>Reduce the set of matched elements to a subset specified by a range of indexes.</summary>
+            <param name="start">
+            An integer indicating the 0-based position at which the elements begin to be selected. If negative, it
+            indicates an offset from the end of the set.
+            </param>
+            <param name="end">
+            An integer indicating the 0-based position at which the elements stop being selected. If negative, it
+            indicates an offset from the end of the set. If omitted, the range continues until the end of the set.
+            </param>
+            <returns>The Selenium jQuery selector.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.CreateContext(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.JQuerySelector.LoadExternalLibrary(OpenQA.Selenium.IWebDriver)">
+            <inheritdoc />
+        </member>
+        <member name="T:Selenium.WebDriver.Extensions.SelectorBase`1">
+            <summary>The selector base.</summary>
+            <typeparam name="TSelector">The type of the selector.</typeparam>
+            <inheritdoc cref="T:Selenium.WebDriver.Extensions.ISelector" />
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.SelectorBase`1.#ctor(System.String,`0)">
+            <summary>Initializes a new instance of the <see cref="T:Selenium.WebDriver.Extensions.SelectorBase`1" /> class.</summary>
+            <param name="selector">A string containing a selector expression.</param>
+            <param name="context">The context.</param>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.SelectorBase`1.CheckScript">
+            <inheritdoc />
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.SelectorBase`1.Context">
+            <summary>Gets the context.</summary>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.SelectorBase`1.RawSelector">
+            <summary>Gets the query raw selector.</summary>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.SelectorBase`1.Selector">
+            <summary>Gets the selector.</summary>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.SelectorBase`1.ResultResolver">
+            <summary>Gets the result resolver string.</summary>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.SelectorBase`1.CreateContext(System.String)">
+            <summary>Creates the context.</summary>
+            <param name="contextSelector">The context selector.</param>
+            <returns>The context.</returns>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.SelectorBase`1.LoadExternalLibrary(OpenQA.Selenium.IWebDriver)">
+            <summary>Loads the external library.</summary>
+            <param name="driver">The web driver.</param>
+        </member>
+        <member name="T:Selenium.WebDriver.Extensions.SizzleSelector">
+            <summary>Searches the DOM elements using Sizzle selector.</summary>
+            <inheritdoc />
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.SizzleSelector.#ctor(System.String)">
+            <summary>Initializes a new instance of the <see cref="T:Selenium.WebDriver.Extensions.SizzleSelector" /> class.</summary>
+            <param name="selector">A string containing a selector expression.</param>
+            <remarks>
+            This constructor cannot be merged with <see cref="M:Selenium.WebDriver.Extensions.SizzleSelector.#ctor(System.String,Selenium.WebDriver.Extensions.SizzleSelector)" /> constructor as
+            it is resolved by reflection.
+            </remarks>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.SizzleSelector.#ctor(System.String,Selenium.WebDriver.Extensions.SizzleSelector)">
+            <summary>Initializes a new instance of the <see cref="T:Selenium.WebDriver.Extensions.SizzleSelector" /> class.</summary>
+            <param name="selector">A string containing a selector expression.</param>
+            <param name="context">A DOM Element, Document, or jQuery to use as context.</param>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.SizzleSelector.Empty">
+            <summary>Gets the empty selector.</summary>
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.SizzleSelector.CheckScript">
+            <inheritdoc />
+        </member>
+        <member name="P:Selenium.WebDriver.Extensions.SizzleSelector.Selector">
+            <inheritdoc />
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.SizzleSelector.CreateContext(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.SizzleSelector.LoadExternalLibrary(OpenQA.Selenium.IWebDriver)">
+            <inheritdoc />
+        </member>
+        <member name="T:Selenium.WebDriver.Extensions.WebDriverExtensions">
+            <summary>Web driver extensions.</summary>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.WebDriverExtensions.ExecuteScript(OpenQA.Selenium.IWebDriver,System.String,System.Object[])">
+            <summary>Executes JavaScript in the context of the currently selected frame or window.</summary>
+            <param name="driver">The Selenium web driver.</param>
+            <param name="script">The script to be executed.</param>
+            <param name="args">The arguments to the script.</param>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.WebDriverExtensions.ExecuteScript``1(OpenQA.Selenium.IWebDriver,System.String,System.Object[])">
+            <summary>Executes JavaScript in the context of the currently selected frame or window.</summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+            <param name="driver">The Selenium web driver.</param>
+            <param name="script">The script to be executed.</param>
+            <param name="args">The arguments to the script.</param>
+            <returns>The value returned by the script.</returns>
+            <remarks>
+            For an HTML element, this method returns a <see cref="T:OpenQA.Selenium.IWebElement" />. For a number, a <see cref="T:System.Int64" />
+            is returned. For a boolean, a <see cref="T:System.Boolean" /> is returned. For all other cases a <see cref="T:System.String" />
+            is returned. For an array,we check the first element, and attempt to return a <see cref="T:System.Collections.Generic.List`1" /> of
+            that type, following the rules above. Nested lists are not supported.
+            </remarks>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.WebDriverExtensions.LoadJQuery(OpenQA.Selenium.IWebDriver,System.String,System.Nullable{System.TimeSpan})">
+            <summary>Checks if jQuery is loaded and loads it if needed.</summary>
+            <param name="driver">The Selenium web driver.</param>
+            <param name="version">
+            The version of jQuery to load if it's not already loaded on the tested page. It must be the full version
+            number matching one of the versions at <see href="https://code.jquery.com/jquery" />.
+            </param>
+            <param name="timeout">The timeout value for the jQuery load.</param>
+            <remarks>
+            If jQuery is already loaded on a page this method will do nothing, even if the loaded version and version
+            requested by invoking this method have different versions.
+            </remarks>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.WebDriverExtensions.LoadJQuery(OpenQA.Selenium.IWebDriver,System.Uri,System.Nullable{System.TimeSpan})">
+            <summary>Checks if jQuery is loaded and loads it if needed.</summary>
+            <param name="driver">The Selenium web driver.</param>
+            <param name="uri">The URI of jQuery to load if it's not already loaded on the tested page.</param>
+            <param name="timeout">The timeout value for the jQuery load.</param>
+            <remarks>
+            If jQuery is already loaded on a page this method will do nothing, even if the loaded version and version
+            requested by invoking this method have different versions.
+            </remarks>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.WebDriverExtensions.LoadSizzle(OpenQA.Selenium.IWebDriver,System.String,System.Nullable{System.TimeSpan})">
+            <summary>Checks if Sizzle is loaded and loads it if needed.</summary>
+            <param name="driver">The Selenium web driver.</param>
+            <param name="version">
+            The version of Sizzle to load if it's not already loaded on the tested page. It must be the full version
+            number matching one of the versions at <see href="https://github.com/jquery/sizzle" />.
+            </param>
+            <param name="timeout">The timeout value for the Sizzle load.</param>
+            <remarks>
+            If Sizzle is already loaded on a page this method will do nothing, even if the loaded version and version
+            requested by invoking this method have different versions.
+            </remarks>
+        </member>
+        <member name="M:Selenium.WebDriver.Extensions.WebDriverExtensions.LoadSizzle(OpenQA.Selenium.IWebDriver,System.Uri,System.Nullable{System.TimeSpan})">
+            <summary>Checks if Sizzle is loaded and loads it if needed.</summary>
+            <param name="driver">The Selenium web driver.</param>
+            <param name="uri">The URI of Sizzle to load if it's not already loaded on the tested page.</param>
+            <param name="timeout">The timeout value for the Sizzle load.</param>
+            <remarks>
+            If Sizzle is already loaded on a page this method will do nothing, even if the loaded version and version
+            requested by invoking this method have different versions.
+            </remarks>
+        </member>
+    </members>
+</doc>
