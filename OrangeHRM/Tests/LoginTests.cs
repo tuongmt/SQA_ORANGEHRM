@@ -37,14 +37,17 @@ namespace OrangeHRM.Tests
 			driver.Quit();
 		}
 
+		[Test]
 		public void GetAPI()
 		{
 			try
 			{
 				string URL = "http://localhost/orangehrm-5.4/orangehrm-5.4/web/index.php/auth/login";
 				driver.Navigate().GoToUrl(URL);
-				driver.Manage().Window.Size = new System.Drawing.Size(1000, 1200);
+				driver.Manage().Window.Position = new System.Drawing.Point(0, 0);
+				driver.Manage().Window.Size = new System.Drawing.Size(1000, 825);
 				Thread.Sleep(3000);
+				//driver.Close();
 			}catch(Exception ex)
 			{
 				Console.WriteLine("Error from GetAPI " + ex.ToString());

@@ -25,16 +25,18 @@ namespace OrangeHRM.Tests
 			driver = loginTests.driver;
 		}
 		
-		[Test, Category("Recruitment")]
-		//[TestCase(TestName = "Add Vancancy from Recruitment")]
-		[TestCaseSource(typeof(ExcelDataProvider), "GetAddVacancyDatasFromExcel")]
-		public void Recruitment_AddVacancy(string username, string password, string vacancyName, string jobTitle, string hiringManager)
+		public void FlowEnteringCandidates()
 		{
-			Setup();
-			
-			// Login
-			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+			// Click Recruitment in dashboard list
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Count > 0);
+			}
+			driver.FindElement(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Click();
+		}
 
+		public void FlowEnteringVacancies()
+		{
 			// Click Recruitment in dashboard list
 			{
 				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
@@ -48,7 +50,20 @@ namespace OrangeHRM.Tests
 				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Count > 0);
 			}
 			driver.FindElement(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Click();
+		}
 
+		[Test, Category("Recruitment")]
+		//[TestCase(TestName = "Add Vancancy from Recruitment")]
+		[TestCaseSource(typeof(ExcelDataProvider), "GetAddVacancyDatasFromExcel")]
+		public void Recruitment_AddVacancy(string username, string password, string vacancyName, string jobTitle, string hiringManager)
+		{
+			Setup();
+			
+			// Login
+			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+
+			FlowEnteringVacancies();
+			
 			// Choose add button
 			{
 				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
@@ -128,19 +143,7 @@ namespace OrangeHRM.Tests
 			// Login
 			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			// Click Recruitment in dashboard list
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Click();
-
-			// Choose Vacancies in navbar Recruitment
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Click();
+			FlowEnteringVacancies();
 
 			// Click delete button from vacancy card and check vacancyNo (item in this) exist or not.
 			{
@@ -179,12 +182,7 @@ namespace OrangeHRM.Tests
 			// Login
 			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			// Click Recruitment in dashboard list
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Click();
+			FlowEnteringCandidates();
 
 			// Click Add button
 			{
@@ -253,7 +251,46 @@ namespace OrangeHRM.Tests
 			ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddCandidate", "Pass", 9);
 			driver.Close();
 			Assert.Pass("Add Candidate success !");
-			
 		}
+
+		[Test, Category("Recruitment")]
+		//[TestCase(TestName = "Delete Candidate from Recruitment")]
+		[TestCaseSource(typeof(ExcelDataProvider), "GetDeleteCandidateDatasFromExcel")]
+		public void Recruitment_DeleteCandidate(string username, string password, string candidateNo)
+		{
+			Setup();
+
+			// Login
+			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+
+			FlowEnteringCandidates();
+
+			//Wait candidates info and Click delete item(candidateNo) 
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".card-item.card-header-slot-content.--right > div > div > button:nth-child(2)")).Count > 0);
+			}
+			try
+			{
+				driver.FindElement(By.CssSelector($"div:nth-child({candidateNo}) > div > div > .card-header-slot > .card-item.card-header-slot-content.--right > div > div > button:nth-child(2)")).Click();
+				Thread.Sleep(1);
+			}
+			catch (NoSuchElementException){
+				driver.Close();
+				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "DeleteCandidate", "Fail (Candidate No not found)", 5);
+				Assert.Fail("Candidate No not found !");
+			}
+
+			//Wait popup showing and click Yes, delete
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--label-danger.orangehrm-button-margin")).Count > 0);
+			}
+			driver.FindElement(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--label-danger.orangehrm-button-margin")).Click();
+
+			driver.Close();
+			ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "DeleteCandidate", "Pass", 5);
+			Assert.Pass("Delete Candidate success !");
+		}	
 	}
 }
