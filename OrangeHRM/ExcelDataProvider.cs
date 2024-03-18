@@ -25,7 +25,7 @@ namespace OrangeHRM
 					ws.Cells[rowStart, colIndexStart].Value = result;
 
 					package.Save();
-					rowStart++;
+					rowStart+=1;
 				}
 			}
 			catch(Exception ex) 
@@ -118,7 +118,7 @@ namespace OrangeHRM
 			return testData;
 		}
 
-		public static IEnumerable<TestCaseData> GetAddCandidateDatasFromExcel()
+		public static IEnumerable<TestCaseData> GetDeleteVacancyDatasFromExcel()
 		{
 			var testData = new List<TestCaseData>();
 			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
@@ -127,6 +127,27 @@ namespace OrangeHRM
 				{
 					var result = reader.AsDataSet();
 					var table = result.Tables[4];
+					for (int i = 1; i < table.Rows.Count; i++)
+					{
+						string username = table.Rows[i][0].ToString();
+						string password = table.Rows[i][1].ToString();
+						string vacancyNo = table.Rows[i][2].ToString();
+						testData.Add(new TestCaseData(username, password, vacancyNo));
+					}
+				}
+			}
+			return testData;
+		}
+
+		public static IEnumerable<TestCaseData> GetAddCandidateDatasFromExcel()
+		{
+			var testData = new List<TestCaseData>();
+			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
+			{
+				using (var reader = ExcelReaderFactory.CreateReader(stream))
+				{
+					var result = reader.AsDataSet();
+					var table = result.Tables[5];
 					for (int i = 1; i < table.Rows.Count; i++)
 					{
 						string username = table.Rows[i][0].ToString();

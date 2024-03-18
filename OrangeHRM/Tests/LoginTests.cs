@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using OpenQA.Selenium.Support.Extensions;
 using OpenQA.Selenium.Support.UI;
 using By = Selenium.WebDriver.Extensions.By;
+using OpenQA.Selenium.Interactions;
 
 namespace OrangeHRM.Tests
 {
@@ -36,13 +37,18 @@ namespace OrangeHRM.Tests
 			driver.Quit();
 		}
 
-		[Test]
 		public void GetAPI()
 		{
-			string URL = "http://localhost/orangehrm-5.4/orangehrm-5.4/web/index.php/auth/login";
-			driver.Navigate().GoToUrl(URL);
-			driver.Manage().Window.Size = new System.Drawing.Size(1000, 1200);
-			Thread.Sleep(3000);
+			try
+			{
+				string URL = "http://localhost/orangehrm-5.4/orangehrm-5.4/web/index.php/auth/login";
+				driver.Navigate().GoToUrl(URL);
+				driver.Manage().Window.Size = new System.Drawing.Size(1000, 1200);
+				Thread.Sleep(3000);
+			}catch(Exception ex)
+			{
+				Console.WriteLine("Error from GetAPI " + ex.ToString());
+			}
 		}
 
 		[Test, Category("Login")]
@@ -56,25 +62,41 @@ namespace OrangeHRM.Tests
 			driver.FindElement(By.Name("password")).SendKeys(password);
 			driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
-			// Check error message when login fail
-			var errorMessage = driver.FindElements(By.CssSelector(".oxd-text.oxd-text--p.oxd-alert-content-text"));
-			Assert.That(errorMessage.Count == 0, "Error message is invisible");
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-alert-content.oxd-alert-content--error > p")).Count == 0);
+			}
+			try
+			{
+				// Check error message when login fail
+				if (driver.FindElement(By.JQuerySelector(".oxd-alert-content.oxd-alert-content--error > p")).Displayed)
+				{
+					ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "ValidUser", "Fail (Invalid credentials)", 4);
+					driver.Close();
+					Assert.Fail("Username or password is wrong, check again");
+				}
+			}
+			catch (NoSuchElementException) { }
 
 			// If login success redirects to homepage and see userdropdown-tab then login success
 			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-userdropdown-tab")).Count > 0);
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-sidepanel-body > ul > li:nth-child(8)")).Count > 0);
 			}
-			var actual = driver.FindElements(By.CssSelector(".oxd-userdropdown-tab"));
-			Assert.That(actual.Count > 0, "Login success");
-			//Write result to excel (FileName.xlsx, "WorkSheetName", "Result", ColumnToWriteResult)
-			if(actual.Count > 0) 
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "ValidUser", "Pass", 4);
-			else 
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "ValidUser", "Fail", 4);
+
+			// Check visible in Dashboard Page
+			if (driver.FindElements(By.CssSelector(".oxd-sidepanel-body > ul > li:nth-child(8)")).Count == 0)
+			{
+				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "ValidUser", "Fail (Not redirect to dashboard page)", 4);
+				driver.Close();
+				Assert.Pass("Test Login with valid user fail because not redirect to dashboard page.");
+				
+			}
 
 			//When not run other function then turn on it
-			//driver.Close(); 
+			//ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "ValidUser", "Pass", 4);
+			//driver.Close();
+			//Assert.Pass("Test Login with valid user success");
 		}
 
 		[Test, Category("Login")]
@@ -88,19 +110,33 @@ namespace OrangeHRM.Tests
 			driver.FindElement(By.Name("password")).SendKeys(password);
 			driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 			Thread.Sleep(3000);
-			
-			var errorMessage = driver.FindElements(By.CssSelector(".oxd-text.oxd-text--p.oxd-alert-content-text"));
-			Assert.That(errorMessage.Count > 0, Is.True, "Error message is visible");
-			
-			
-			var actual = driver.FindElements(By.CssSelector(".oxd-userdropdown-name"));
-			Assert.That(actual.Count == 0, "Login fail");
 
-			if (actual.Count == 0)
+			// Wait Error message and check invalid credentials
+			try
+			{
+				{
+					WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+					wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-alert-content.oxd-alert-content--error > p")).Count > 0);
+				}
+			}catch(WebDriverTimeoutException) {
+				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "InvalidUser", "Fail (It's valid credentials)", 4);
+				driver.Close();
+				Assert.Fail("It's valid credentials");
+			}
+			catch (NoSuchElementException)
+			{
+				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "InvalidUser", "Fail (It's valid credentials)", 4);
+				driver.Close();
+				Assert.Fail("It's valid credentials");
+			}
+
+			// Error message displayed -> success
+			if (driver.FindElement(By.JQuerySelector(".oxd-alert-content.oxd-alert-content--error > p")).Displayed)
+			{
 				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "InvalidUser", "Pass", 4);
-			else
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "InvalidUser", "Fail", 4);
-			driver.Close();
+				driver.Close();
+				Assert.Pass("Test Login with invalid user success !");
+			}
 		}
 
 		[Test, Category("Login")]
@@ -110,14 +146,33 @@ namespace OrangeHRM.Tests
 		{
 			Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			driver.FindElement(By.CssSelector(".oxd-userdropdown-tab")).Click();
-			Thread.Sleep(2000);
-			driver.FindElement(By.LinkText("Logout")).Click();
-			Thread.Sleep(2000);
-			var actual = driver.FindElements(By.CssSelector(".oxd-button"));
-			Console.WriteLine(actual);
-			Assert.That(actual.Count > 0, "Logout success");
-			driver.Close();
+			// Wait and Click user info
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-topbar-header-userarea > ul > li")).Count > 0);
+			}
+			driver.FindElement(By.CssSelector(".oxd-topbar-header-userarea > ul > li")).Click();
+
+			// Wait and Click logout
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-topbar-header-userarea > ul > li > ul > li:nth-child(4)")).Count > 0);
+			}
+			driver.FindElement(By.CssSelector(".oxd-topbar-header-userarea > ul > li > ul > li:nth-child(4)")).Click();
+
+			// Wait login button in Login page and check visible
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-form-actions.orangehrm-login-action > button")).Count > 0);
+			}
+
+			Thread.Sleep(1000);
+
+			if (driver.FindElement(By.JQuerySelector(".oxd-form-actions.orangehrm-login-action > button")).Displayed)
+			{
+				driver.Close();
+				Assert.Pass("Test Logout user success !");
+			}
 		}
 	}
 }

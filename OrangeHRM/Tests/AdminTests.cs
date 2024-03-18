@@ -33,50 +33,62 @@ namespace OrangeHRM.Tests
 			// Login
 			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			// Click admin in dashboard list, check it visible???
+			// Wait and Click Admin in dashboard list
 			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
 				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(1)")).Count > 0);
-			}//:nth-child(1) la phan tu thu nhat trong tap hop .oxd-main-menu-item-wrapper
+			}
 			driver.FindElement(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(1)")).Click();
 
-			// choose job from navbar, tuong tu phia tren
+			// Wait and Click job from navbar
 			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
 				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Count > 0);
-			}//:nth-child(2) chon cai thu hai
+			}
 			driver.FindElement(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Click();
 
-			// choose job title from job list
+			// Click Job Title from job list
 			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
 				wait.Until(driver => driver.FindElements(By.CssSelector(".--active.oxd-topbar-body-nav-tab.--parent > ul > li:nth-child(1)")).Count > 0);
-			}//.--active.oxd-topbar-body-nav-tab.--parent.--visited > ul > li:nth-child(1) > a // rut gon do dai
+			}
 			driver.FindElement(By.CssSelector(".--active.oxd-topbar-body-nav-tab.--parent > ul > li:nth-child(1)")).Click();
 
-
-			// choose add
-			{// thu bo :nth-child(1) xem
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+			// Wait and Click Add
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
 				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-button--secondary")).Count > 0);
 			}
 			driver.FindElement(By.CssSelector(".oxd-button--secondary")).Click();
 
-			// fill Job Title name
-			{ //form > div:nth-child(1) > div > div:nth-child(2) > input rut gon tu form de lay phan tu con
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+			// Wait and Fill Job Title Name
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
 				wait.Until(driver => driver.FindElements(By.CssSelector("form > div:nth-child(1) > div > div:nth-child(2) > input")).Count > 0);
 			}
-			driver.FindElement(By.CssSelector("form > div:nth-child(1) > div > div:nth-child(2) > input")).Click();
 			driver.FindElement(By.CssSelector("form > div:nth-child(1) > div > div:nth-child(2) > input")).SendKeys(jobTitle);
 
-			// click save //button.oxd-button.oxd-button--medium.oxd-button--secondary.orangehrm-left-space rut gon bot
+			// Wait and Check error message when Job Title Name is exist
+			
+			try{
+				{
+					WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
+					wait.Until(driver => driver.FindElements(By.JQuerySelector("form > div:nth-child(1) > div > span")).Count == 0);
+				}
+			}
+			catch(NoSuchElementException){}
+			catch (WebDriverTimeoutException) {
+				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddJobTitle", "Fail (Job Title is exist)", 5);
+				driver.Close();
+				Assert.Fail("Job Title is exist !");
+			}
+
+			// Click save
 			driver.FindElement(By.CssSelector("button.oxd-button.oxd-button--medium.oxd-button--secondary.orangehrm-left-space")).Click();
 
-			Thread.Sleep(2000);
-			TestContext.Out.WriteLine("Add job title success");
-
+			ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddJobTitle", "Pass", 5);
 			driver.Close();
+			Assert.Pass("Add job title success");
 		}
 	}
 }
