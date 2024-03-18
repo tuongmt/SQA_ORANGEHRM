@@ -36,11 +36,12 @@ namespace OrangeHRM.Tests
 			driver.Quit();
 		}
 
+		[Test]
 		public void GetAPI()
 		{
 			string URL = "http://localhost/orangehrm-5.4/orangehrm-5.4/web/index.php/auth/login";
 			driver.Navigate().GoToUrl(URL);
-			driver.Manage().Window.Size = new System.Drawing.Size(1200, 1080);
+			driver.Manage().Window.Size = new System.Drawing.Size(1000, 1200);
 			Thread.Sleep(3000);
 		}
 

@@ -35,71 +35,126 @@ namespace OrangeHRM.Tests
 			// Login
 			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			// Wait until .oxd-main-menu-item-wrapper:nth-child(5) visible
+			// Click Recruitment in dashboard list
 			{
 				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
 				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Count > 0);
 			}
-			// Click recruitment in dashboard list when login success (recruitment la phan tu thu 5 trong tap hop)
 			driver.FindElement(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Click();
 
-			// choose vancancies, neu la class them . truoc no (vancancies la phan tu thu 2)
+			// Choose Vacancies in navbar Recruitment
 			{
 				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
 				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Count > 0);
 			}
 			driver.FindElement(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Click();
 
-			// choose add .oxd-button--medium oxd-button--secondary (co the rut gon bot, neu chi co 1 phan tu co the bo child) // ko dc bo khoang trong neu cung la class
+			// Choose add button
 			{
 				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
 				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--secondary:nth-child(1)")).Count > 0);
 			}
 			driver.FindElement(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--secondary:nth-child(1)")).Click();
 
-			// fill vancancy name .oxd-input.oxd-input--active do bi trung voi search ben dashboard nen phai lay tu .oxd-input-group.oxd-input-field-bottom-space
+			// Fill Vacancy Name
 			{
 				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
 				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-input-field-bottom-space > div > .oxd-input.oxd-input--active")).Count > 0);
 			}
 			driver.FindElement(By.CssSelector(".oxd-input-field-bottom-space > div > .oxd-input.oxd-input--active")).Click();
-			//driver.FindElement(By.CssSelector(".oxd-input-field-bottom-space > div > .oxd-input.oxd-input--focus")).SendKeys("Tester1");	
 			driver.FindElement(By.CssSelector(".oxd-input-field-bottom-space > div > .oxd-input.oxd-input--focus")).SendKeys(vacancyName);
 
-			// choose dropdown (phai debug de lay thong tin cua option), tat ignore list truoc khi debug
-			// lam sao phai cho hien len cai div listbox do thi ta phai lay div parent cua no debug
-			//Step over cho toi khi hien option
+			// Choose option Job Title
 			driver.FindElement(By.JQuerySelector(".oxd-select-text-input")).Click();
-			// find option
 			{
 				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
 				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-select-option > span")).Count > 0);
 			}
-			// > : dai dien cho child cua no la span, :contains chua thong tin cua option
-			// tat debug: tat DOM breakpoints truoc, sau do F8 de thoat debug
-			//driver.FindElement(By.JQuerySelector(".oxd-select-option > span:contains('Web developer')")).Click();
 			driver.FindElement(By.JQuerySelector($".oxd-select-option > span:contains('{jobTitle}')")).Click();
 
-			// fill hiring manager (nhung cai input co the bi trung nhau nen phai co nhieu parent phia truoc no cang tot)
-			// debug tiep tuc de lay hiringManager //phai copy tu elements moi dung 100%
-			// check .oxd-autocomplete-option > span:contains('{hiringManager} hien thi hay chua
+			// Fill and Choose option Hiring Manager
 			driver.FindElement(By.JQuerySelector(".oxd-autocomplete-text-input--active > input")).SendKeys(hiringManager);
 			{
 				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
 				wait.Until(driver => driver.FindElements(By.JQuerySelector($".oxd-autocomplete-option > span:contains('{hiringManager}')")).Count > 0);
 			}
 			driver.FindElement(By.JQuerySelector($".oxd-autocomplete-option > span:contains('{hiringManager}')")).Click();
-			Thread.Sleep(2000); //ok, huong dan het roi do, test di nha ^^
+			
+			Thread.Sleep(2000); // use to debug, dont save result
 
-			//button.oxd-button.oxd-button--medium.oxd-button--secondary.orangehrm-left-space nen rut gon bot
+			// Click Save button
 			driver.FindElement(By.CssSelector("button.oxd-button--secondary.orangehrm-left-space")).Click();
 
-
 			TestContext.Out.WriteLine("Add vacancy success");
-
 			driver.Close();
 		}
 
+		[Test, Category("Recruitment")]
+		//[TestCase(TestName = "Add Vancancy from Recruitment")]
+		[TestCaseSource(typeof(ExcelDataProvider), "GetAddCandidateDatasFromExcel")]
+		public void Recruitment_AddCandidate(string username, string password, string firstName, string middleName, string lastName, string vacancy, string email)
+		{
+			Setup();
 
+			// Login
+			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+
+			// Click Recruitment in dashboard list
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Count > 0);
+			}
+			driver.FindElement(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Click();
+
+			// Click Add button
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--secondary:nth-child(1)")).Count > 0);
+			}
+			driver.FindElement(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--secondary:nth-child(1)")).Click();
+
+			// Fill first name
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				wait.Until(driver => driver.FindElements(By.Name("firstName")).Count > 0);
+			}
+			driver.FindElement(By.Name("firstName")).SendKeys(firstName);
+
+			// Fill middle name
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				wait.Until(driver => driver.FindElements(By.Name("middleName")).Count > 0);
+			}
+			driver.FindElement(By.Name("middleName")).SendKeys(middleName);
+
+			// Fill last name
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				wait.Until(driver => driver.FindElements(By.Name("lastName")).Count > 0);
+			}
+			driver.FindElement(By.Name("lastName")).SendKeys(lastName);
+
+			// Choose option Vacancy
+			driver.FindElement(By.JQuerySelector(".oxd-select-text-input")).Click();
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-select-dropdown > .oxd-select-option > span")).Count > 0);
+			}
+			driver.FindElement(By.JQuerySelector($".oxd-select-dropdown > .oxd-select-option > span:contains('{vacancy}')")).Click();
+
+			// Fill email 
+			{
+				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(30));
+				wait.Until(driver => driver.FindElements(By.CssSelector("div:nth-child(1) > div > div:nth-child(2) > input")).Count > 0);
+			}
+			driver.FindElement(By.CssSelector("div:nth-child(1) > div > div:nth-child(2) > input")).SendKeys(email);
+
+			Thread.Sleep(2000); // use to debug, dont save result
+
+			driver.FindElement(By.CssSelector("button.oxd-button--secondary.orangehrm-left-space")).Click();
+
+			TestContext.Out.WriteLine("Add Candidate success");
+			driver.Close();
+		}
 	}
 }

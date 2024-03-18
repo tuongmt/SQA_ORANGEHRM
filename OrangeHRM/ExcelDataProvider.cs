@@ -117,5 +117,30 @@ namespace OrangeHRM
 			}
 			return testData;
 		}
+
+		public static IEnumerable<TestCaseData> GetAddCandidateDatasFromExcel()
+		{
+			var testData = new List<TestCaseData>();
+			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
+			{
+				using (var reader = ExcelReaderFactory.CreateReader(stream))
+				{
+					var result = reader.AsDataSet();
+					var table = result.Tables[4];
+					for (int i = 1; i < table.Rows.Count; i++)
+					{
+						string username = table.Rows[i][0].ToString();
+						string password = table.Rows[i][1].ToString();
+						string firstName = table.Rows[i][2].ToString();
+						string middleName = table.Rows[i][3].ToString(); 
+						string lastName = table.Rows[i][4].ToString();
+						string vacancy = table.Rows[i][5].ToString();
+						string email = table.Rows[i][6].ToString();
+						testData.Add(new TestCaseData(username, password, firstName, middleName, lastName, vacancy, email));
+					}
+				}
+			}
+			return testData;
+		}
 	}
 }
