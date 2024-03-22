@@ -109,11 +109,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExcelDataProvider.cs" />
+    <Compile Include="Pages\AdminPage.cs" />
     <Compile Include="Pages\LoginPage.cs" />
+    <Compile Include="Pages\MyInfoPage.cs" />
+    <Compile Include="Pages\RecruitmentPage.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\AdminTests.cs" />
     <Compile Include="Tests\LoginTests.cs" />
+    <Compile Include="Tests\MyInfoTests.cs" />
     <Compile Include="Tests\RecruitmentTests.cs" />
   </ItemGroup>
   <ItemGroup>

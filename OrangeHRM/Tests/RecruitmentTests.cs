@@ -11,286 +11,122 @@ using System.Threading.Tasks;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.Extensions;
 using By = Selenium.WebDriver.Extensions.By;
+using OrangeHRM.Pages;
 
 namespace OrangeHRM.Tests
 {
 	internal class RecruitmentTests
 	{
-		private IWebDriver driver;
-		private LoginTests loginTests = new LoginTests();
+		private IWebDriver _driver;
+		private IJavaScriptExecutor _js;
 
+		public RecruitmentTests() {}
+
+		[SetUp]
 		public void Setup()
 		{
-			loginTests.Setup();
-			driver = loginTests.driver;
-		}
-		
-		public void FlowEnteringCandidates()
-		{
-			// Click Recruitment in dashboard list
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Click();
+			ChromeOptions options = new ChromeOptions();
+			options.AddArgument("--start-maximized");
+			ChromeDriverService service = ChromeDriverService.CreateDefaultService("");
+			_driver = new ChromeDriver(service, options);
 		}
 
-		public void FlowEnteringVacancies()
+		[TearDown]
+		public void TearDown()
 		{
-			// Click Recruitment in dashboard list
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(5)")).Click();
-
-			// Choose Vacancies in navbar Recruitment
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-topbar-body-nav-tab:nth-child(2)")).Click();
+			_driver.Quit();
 		}
 
 		[Test, Category("Recruitment")]
-		//[TestCase(TestName = "Add Vancancy from Recruitment")]
 		[TestCaseSource(typeof(ExcelDataProvider), "GetAddVacancyDatasFromExcel")]
-		public void Recruitment_AddVacancy(string username, string password, string vacancyName, string jobTitle, string hiringManager)
+		public void ExecRecruitment_AddVacancy(string username, string password, string vacancyName, string jobTitle, string hiringManager)
 		{
-			Setup();
-			
-			// Login
-			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+			LoginPage loginPage = new LoginPage(_driver, _js);
+			RecruitmentPage recruitmentPage = new RecruitmentPage(_driver, _js);
 
-			FlowEnteringVacancies();
-			
-			// Choose add button
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--secondary:nth-child(1)")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--secondary:nth-child(1)")).Click();
+			loginPage.GetAPI();
 
-			// Fill Vacancy Name
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-input-field-bottom-space > div > .oxd-input.oxd-input--active")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-input-field-bottom-space > div > .oxd-input.oxd-input--active")).Click();
-			driver.FindElement(By.CssSelector(".oxd-input-field-bottom-space > div > .oxd-input.oxd-input--focus")).SendKeys(vacancyName);
+			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			// Wait Error message when Vacancy Name is exist
-			try
-			{
-				{
-					WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-					wait.Until(driver => driver.FindElements(By.CssSelector("form > div:nth-child(1) > div:nth-child(1) > div > span")).Count == 0);
-				}
-			}
-			catch (WebDriverTimeoutException){
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddVacancy", "Fail (Vacancy Name is exist)", 7);
-				driver.Close();
-				Assert.Fail("Vacancy Name is exist !");
-			}
-
-			// Wait and choose option Job Title
-			driver.FindElement(By.JQuerySelector(".oxd-select-text-input")).Click();
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-select-option > span")).Count > 0);
-			}
-			try {
-				driver.FindElement(By.JQuerySelector($".oxd-select-option > span:contains('{jobTitle}')")).Click();
-			}
-			catch (NoSuchElementException){
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddVacancy", "Fail (Job Title isn't exist)", 7);
-				driver.Close();
-				Assert.Fail("Job Title isn't exist !");
-			}
-
-			// Fill and Choose option Hiring Manager
-			driver.FindElement(By.JQuerySelector(".oxd-autocomplete-text-input--active > input")).SendKeys(hiringManager);
-			try
-			{
-				{
-					WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-					wait.Until(driver => driver.FindElements(By.JQuerySelector($".oxd-autocomplete-option > span:contains('{hiringManager}')")).Count > 0);
-				}
-				driver.FindElement(By.JQuerySelector($".oxd-autocomplete-option > span:contains('{hiringManager}')")).Click();
-			}
-			catch (WebDriverTimeoutException){
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddVacancy", "Fail (Hiring Manager isn't exist)", 7);
-				driver.Close();
-				Assert.Fail("hiringManager isn't exist !");
-			}
-
-			// Click Save button
-			driver.FindElement(By.CssSelector("button.oxd-button--secondary.orangehrm-left-space")).Click();
-
-			ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddVacancy", "Pass", 7);
-			driver.Close();
-			Assert.Pass("Add vacancy success !");
-			
+			recruitmentPage.FlowEnteringVacancies();
+			recruitmentPage.Recruitment_AddVacancy(vacancyName, jobTitle, hiringManager);
 		}
 
 		[Test, Category("Recruitment")]
-		//[TestCase(TestName = "Delete Vancancy from Recruitment")]
 		[TestCaseSource(typeof(ExcelDataProvider), "GetDeleteVacancyDatasFromExcel")]
-		public void Recruitment_DeleteVacancy(string username, string password, string vacancyNo)
+		public void ExecRecruitment_DeleteVacancy(string username, string password, string vacancyNo)
 		{
-			Setup();
+			LoginPage loginPage = new LoginPage(_driver, _js);
+			RecruitmentPage recruitmentPage = new RecruitmentPage(_driver, _js);
 
-			// Login
-			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+			loginPage.GetAPI();
 
-			FlowEnteringVacancies();
+			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			// Click delete button from vacancy card and check vacancyNo (item in this) exist or not.
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector($"div.card-item.card-header-slot-content.--right > div > div > button:nth-child(1)")).Count > 0);
-			}
-			try
-			{
-				driver.FindElement(By.CssSelector($"div:nth-child({vacancyNo}) > div > div > div.card-header-slot > div.card-item.card-header-slot-content.--right > div > div > button:nth-child(1)")).Click();
-
-				// Click Yes, delete oxd-button oxd-button--medium oxd-button--text orangehrm-button-margin
-				{
-					WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-					wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--label-danger.orangehrm-button-margin")).Count > 0);
-				}
-				driver.FindElement(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--label-danger.orangehrm-button-margin")).Click();
-
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "DeleteVacancy", "Pass", 5);
-				driver.Close();
-				Assert.Pass("Delete vacancy success");
-			}
-			catch (NoSuchElementException){
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "DeleteVacancy", "Fail (Vacancy No not found)", 5);
-				driver.Close();
-				Assert.Fail("vacancyNo not found. Delete vacancy fail !");
-			}
+			recruitmentPage.FlowEnteringVacancies();
+			recruitmentPage.Recruitment_DeleteVacancy(vacancyNo);
 		}
 
 		[Test, Category("Recruitment")]
-		//[TestCase(TestName = "Add Candidate from Recruitment")]
 		[TestCaseSource(typeof(ExcelDataProvider), "GetAddCandidateDatasFromExcel")]
-		public void Recruitment_AddCandidate(string username, string password, string firstName, string middleName, string lastName, string vacancy, string email)
+		public void ExecRecruitment_AddCandidate(string username, string password, string firstName, string middleName, string lastName, string vacancy, string email)
 		{
-			Setup();
+			LoginPage loginPage = new LoginPage(_driver, _js);
+			RecruitmentPage recruitmentPage = new RecruitmentPage(_driver, _js);
 
-			// Login
-			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+			loginPage.GetAPI();
 
-			FlowEnteringCandidates();
+			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			// Click Add button
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--secondary:nth-child(1)")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--secondary:nth-child(1)")).Click();
-
-			// Fill first name
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.Name("firstName")).Count > 0);
-			}
-			driver.FindElement(By.Name("firstName")).SendKeys(firstName);
-
-			// Fill middle name
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.Name("middleName")).Count > 0);
-			}
-			driver.FindElement(By.Name("middleName")).SendKeys(middleName);
-
-			// Fill last name
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.Name("lastName")).Count > 0);
-			}
-			driver.FindElement(By.Name("lastName")).SendKeys(lastName);
-
-			// Choose option Vacancy
-			driver.FindElement(By.JQuerySelector(".oxd-select-text-input")).Click();
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-select-dropdown > .oxd-select-option > span")).Count > 0);
-			}
-			try{
-				driver.FindElement(By.JQuerySelector($".oxd-select-dropdown > .oxd-select-option > span:contains('{vacancy}')")).Click();
-			}
-			catch (NoSuchElementException) { 
-				driver.Close();
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddCandidate", "Fail (Vacancy not found)", 9);
-				Assert.Fail("Vacancy not found!"); }
-
-			// Fill email  
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector("div:nth-child(1) > div > div:nth-child(2) > input")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector("div:nth-child(1) > div > div:nth-child(2) > input")).SendKeys(email);
-
-			try {
-				{
-					WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-					wait.Until(driver => driver.FindElements(By.CssSelector("div > form > div:nth-child(3) > div > div:nth-child(1) > div > span")).Count == 0);
-				}
-			}
-			catch (WebDriverTimeoutException){ 
-				driver.Close();
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddCandidate", "Fail (Email is invalid format)", 9);
-				Assert.Fail("Email is invalid format !"); }
-
-			Thread.Sleep(2000); // use to debug, dont save result
-
-			driver.FindElement(By.CssSelector("button.oxd-button--secondary.orangehrm-left-space")).Click();
-
-			ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "AddCandidate", "Pass", 9);
-			driver.Close();
-			Assert.Pass("Add Candidate success !");
+			recruitmentPage.FlowEnteringCandidates();
+			recruitmentPage.Recruitment_AddCandidate(firstName, middleName, lastName, vacancy, email);
 		}
 
 		[Test, Category("Recruitment")]
-		//[TestCase(TestName = "Delete Candidate from Recruitment")]
 		[TestCaseSource(typeof(ExcelDataProvider), "GetDeleteCandidateDatasFromExcel")]
-		public void Recruitment_DeleteCandidate(string username, string password, string candidateNo)
+		public void ExecRecruitment_DeleteCandidate(string username, string password, string candidateNo)
 		{
-			Setup();
+			LoginPage loginPage = new LoginPage(_driver, _js);
+			RecruitmentPage recruitmentPage = new RecruitmentPage(_driver, _js);
 
-			// Login
-			loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+			loginPage.GetAPI();
 
-			FlowEnteringCandidates();
+			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			//Wait candidates info and Click delete item(candidateNo) 
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".card-item.card-header-slot-content.--right > div > div > button:nth-child(2)")).Count > 0);
-			}
-			try
-			{
-				driver.FindElement(By.CssSelector($"div:nth-child({candidateNo}) > div > div > .card-header-slot > .card-item.card-header-slot-content.--right > div > div > button:nth-child(2)")).Click();
-				Thread.Sleep(1);
-			}
-			catch (NoSuchElementException){
-				driver.Close();
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "DeleteCandidate", "Fail (Candidate No not found)", 5);
-				Assert.Fail("Candidate No not found !");
-			}
+			recruitmentPage.FlowEnteringCandidates();
+			recruitmentPage.Recruitment_DeleteCandidate(candidateNo);
+		}
 
-			//Wait popup showing and click Yes, delete
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--label-danger.orangehrm-button-margin")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--label-danger.orangehrm-button-margin")).Click();
+		// Unsuccessful
+		[Test, Category("Recruitment")]
+		[TestCaseSource(typeof(ExcelDataProvider), "GetEditVacancyDatasFromExcel")]
+		public void ExecRecruitment_EditVacancy(string username, string password, string vacancyNo, string vacancyName, string jobTitle, string hiringManager)
+		{
+			LoginPage loginPage = new LoginPage(_driver, _js);
+			RecruitmentPage recruitmentPage = new RecruitmentPage(_driver, _js);
 
-			driver.Close();
-			ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "DeleteCandidate", "Pass", 5);
-			Assert.Pass("Delete Candidate success !");
-		}	
+			loginPage.GetAPI();
+
+			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+
+			recruitmentPage.FlowEnteringVacancies();
+			recruitmentPage.Recruitment_EditVacancy(vacancyNo, vacancyName, jobTitle, hiringManager);
+		}
+
+		[Test, Category("Recruitment")]
+		[TestCaseSource(typeof(ExcelDataProvider), "GetViewCandidateDatasFromExcel")]
+		public void Recruitment_ViewCandidate(string username, string password, string candidateNo)
+		{
+
+			LoginPage loginPage = new LoginPage(_driver, _js);
+			RecruitmentPage recruitmentPage = new RecruitmentPage(_driver, _js);
+
+			loginPage.GetAPI();
+
+			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+
+			recruitmentPage.FlowEnteringCandidates();
+			recruitmentPage.Recruitment_ViewCandidate(candidateNo);
+		}
 	}
 }

@@ -22,6 +22,8 @@ namespace OrangeHRM.Tests
 		public IWebDriver driver;
 		private IJavaScriptExecutor js;
 
+		public LoginTests () {}
+
 		[SetUp]
 		public void Setup()
 		{
@@ -37,145 +39,39 @@ namespace OrangeHRM.Tests
 			driver.Quit();
 		}
 
-		[Test]
-		public void GetAPI()
-		{
-			try
-			{
-				string URL = "http://localhost/orangehrm-5.4/orangehrm-5.4/web/index.php/auth/login";
-				driver.Navigate().GoToUrl(URL);
-				driver.Manage().Window.Position = new System.Drawing.Point(0, 0);
-				driver.Manage().Window.Size = new System.Drawing.Size(1000, 825);
-				Thread.Sleep(3000);
-				//driver.Close();
-			}catch(Exception ex)
-			{
-				Console.WriteLine("Error from GetAPI " + ex.ToString());
-			}
-		}
-
 		[Test, Category("Login")]
-		//[TestCase(TestName = "Login with valid user redirects to dashboard page")]
 		[TestCaseSource(typeof(ExcelDataProvider), "GetValidUserDatasFromExcel")]
-		public void Login_WithValidUser_NavigatesToDashboardPage(string username, string password)
+		public void ExecLogin_WithValidUser_NavigatesToDashboardPage(string username, string password)
 		{
-			GetAPI();
+			LoginPage loginPage = new LoginPage(driver, js);
 
-			driver.FindElement(By.Name("username")).SendKeys(username);
-			driver.FindElement(By.Name("password")).SendKeys(password);
-			driver.FindElement(By.CssSelector("button[type='submit']")).Click();
+			loginPage.GetAPI();
 
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-alert-content.oxd-alert-content--error > p")).Count == 0);
-			}
-			try
-			{
-				// Check error message when login fail
-				if (driver.FindElement(By.JQuerySelector(".oxd-alert-content.oxd-alert-content--error > p")).Displayed)
-				{
-					ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "ValidUser", "Fail (Invalid credentials)", 4);
-					driver.Close();
-					Assert.Fail("Username or password is wrong, check again");
-				}
-			}
-			catch (NoSuchElementException) { }
-
-			// If login success redirects to homepage and see userdropdown-tab then login success
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-sidepanel-body > ul > li:nth-child(8)")).Count > 0);
-			}
-
-			// Check visible in Dashboard Page
-			if (driver.FindElements(By.CssSelector(".oxd-sidepanel-body > ul > li:nth-child(8)")).Count == 0)
-			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "ValidUser", "Fail (Not redirect to dashboard page)", 4);
-				driver.Close();
-				Assert.Pass("Test Login with valid user fail because not redirect to dashboard page.");
-				
-			}
-
-			//When not run other function then turn on it
-			//ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "ValidUser", "Pass", 4);
-			//driver.Close();
-			//Assert.Pass("Test Login with valid user success");
+			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 		}
 
 		[Test, Category("Login")]
-		//[TestCase(TestName = "Login with a invalid user shows error message")]
 		[TestCaseSource(typeof(ExcelDataProvider), "GetInvalidUserDatasFromExcel")]
-		public void Login_WithInvalidUser_ShowsErrorMessage(string username, string password)
+		public void ExecLogin_WithInvalidUser_ShowsErrorMessage(string username, string password)
 		{
-			GetAPI();
+			LoginPage loginPage = new LoginPage(driver, js);
 
-			driver.FindElement(By.Name("username")).SendKeys(username);
-			driver.FindElement(By.Name("password")).SendKeys(password);
-			driver.FindElement(By.CssSelector("button[type='submit']")).Click();
-			Thread.Sleep(3000);
+			loginPage.GetAPI();
 
-			// Wait Error message and check invalid credentials
-			try
-			{
-				{
-					WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-					wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-alert-content.oxd-alert-content--error > p")).Count > 0);
-				}
-			}catch(WebDriverTimeoutException) {
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "InvalidUser", "Fail (It's valid credentials)", 4);
-				driver.Close();
-				Assert.Fail("It's valid credentials");
-			}
-			catch (NoSuchElementException)
-			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "InvalidUser", "Fail (It's valid credentials)", 4);
-				driver.Close();
-				Assert.Fail("It's valid credentials");
-			}
-
-			// Error message displayed -> success
-			if (driver.FindElement(By.JQuerySelector(".oxd-alert-content.oxd-alert-content--error > p")).Displayed)
-			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData.xlsx", "InvalidUser", "Pass", 4);
-				driver.Close();
-				Assert.Pass("Test Login with invalid user success !");
-			}
+			loginPage.Login_WithInvalidUser_ShowsErrorMessage(username, password);
 		}
 
 		[Test, Category("Login")]
-		//[TestCase(TestName = "Logout redirects to login")]
 		[TestCaseSource(typeof(ExcelDataProvider), "GetValidUserDatasFromExcel")]
-		public void Logout_FromHomePage_RedirectToLogin(string username, string password)
+		public void ExecLogout_FromHomePage_RedirectToLogin(string username, string password)
 		{
-			Login_WithValidUser_NavigatesToDashboardPage(username, password);
+			LoginPage loginPage = new LoginPage(driver, js);
 
-			// Wait and Click user info
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-topbar-header-userarea > ul > li")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-topbar-header-userarea > ul > li")).Click();
+			loginPage.GetAPI();
 
-			// Wait and Click logout
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-topbar-header-userarea > ul > li > ul > li:nth-child(4)")).Count > 0);
-			}
-			driver.FindElement(By.CssSelector(".oxd-topbar-header-userarea > ul > li > ul > li:nth-child(4)")).Click();
-
-			// Wait login button in Login page and check visible
-			{
-				WebDriverWait wait = new WebDriverWait(driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-form-actions.orangehrm-login-action > button")).Count > 0);
-			}
-
-			Thread.Sleep(1000);
-
-			if (driver.FindElement(By.JQuerySelector(".oxd-form-actions.orangehrm-login-action > button")).Displayed)
-			{
-				driver.Close();
-				Assert.Pass("Test Logout user success !");
-			}
+			// Flow logout
+			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+			loginPage.Logout_FromHomePage_RedirectToLogin(username, password);
 		}
 	}
 }

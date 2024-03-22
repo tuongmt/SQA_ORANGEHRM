@@ -37,7 +37,7 @@ namespace OrangeHRM
 		public static IEnumerable<TestCaseData> GetValidUserDatasFromExcel()
 		{
 			var testData = new List<TestCaseData>();
-			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
 			{
 				using (var reader = ExcelReaderFactory.CreateReader(stream))
 				{
@@ -57,7 +57,7 @@ namespace OrangeHRM
 		public static IEnumerable<TestCaseData> GetInvalidUserDatasFromExcel()
 		{
 			var testData = new List<TestCaseData>();
-			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
 			{
 				using (var reader = ExcelReaderFactory.CreateReader(stream))
 				{
@@ -77,7 +77,7 @@ namespace OrangeHRM
 		public static IEnumerable<TestCaseData> GetAddJobTitleDatasFromExcel()
 		{
 			var testData = new List<TestCaseData>();
-			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
 			{
 				using (var reader = ExcelReaderFactory.CreateReader(stream))
 				{
@@ -98,7 +98,7 @@ namespace OrangeHRM
 		public static IEnumerable<TestCaseData> GetAddVacancyDatasFromExcel()
 		{
 			var testData = new List<TestCaseData>();
-			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
 			{
 				using (var reader = ExcelReaderFactory.CreateReader(stream))
 				{
@@ -121,7 +121,7 @@ namespace OrangeHRM
 		public static IEnumerable<TestCaseData> GetDeleteVacancyDatasFromExcel()
 		{
 			var testData = new List<TestCaseData>();
-			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
 			{
 				using (var reader = ExcelReaderFactory.CreateReader(stream))
 				{
@@ -142,7 +142,7 @@ namespace OrangeHRM
 		public static IEnumerable<TestCaseData> GetAddCandidateDatasFromExcel()
 		{
 			var testData = new List<TestCaseData>();
-			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
 			{
 				using (var reader = ExcelReaderFactory.CreateReader(stream))
 				{
@@ -167,12 +167,58 @@ namespace OrangeHRM
 		public static IEnumerable<TestCaseData> GetDeleteCandidateDatasFromExcel()
 		{
 			var testData = new List<TestCaseData>();
-			using (var stream = File.Open("TestCaseData.xlsx", FileMode.Open, FileAccess.Read))
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
 			{
 				using (var reader = ExcelReaderFactory.CreateReader(stream))
 				{
 					var result = reader.AsDataSet();
 					var table = result.Tables[6];
+					for (int i = 1; i < table.Rows.Count; i++)
+					{
+						string username = table.Rows[i][0].ToString();
+						string password = table.Rows[i][1].ToString();
+						string candidateNo = table.Rows[i][2].ToString();
+						testData.Add(new TestCaseData(username, password, candidateNo));
+					}
+				}
+			}
+			return testData;
+		}
+
+		public static IEnumerable<TestCaseData> GetEditVacancyDatasFromExcel()
+		{
+			var testData = new List<TestCaseData>();
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
+			{
+				using (var reader = ExcelReaderFactory.CreateReader(stream))
+				{
+					var result = reader.AsDataSet();
+					var table = result.Tables[7];
+					for (int i = 1; i < table.Rows.Count; i++)
+					{
+						string username = table.Rows[i][0].ToString();
+						string password = table.Rows[i][1].ToString();
+						string vacancyNo = table.Rows[i][2].ToString();
+						string vacancyName = table.Rows[i][3].ToString();
+						string jobTitle = table.Rows[i][4].ToString();
+						string hiringManager = table.Rows[i][5].ToString();
+						
+						testData.Add(new TestCaseData(username, password, vacancyNo, vacancyName, jobTitle, hiringManager));
+					}
+				}
+			}
+			return testData;
+		}
+
+		public static IEnumerable<TestCaseData> GetViewCandidateDatasFromExcel()
+		{
+			var testData = new List<TestCaseData>();
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
+			{
+				using (var reader = ExcelReaderFactory.CreateReader(stream))
+				{
+					var result = reader.AsDataSet();
+					var table = result.Tables[8];
 					for (int i = 1; i < table.Rows.Count; i++)
 					{
 						string username = table.Rows[i][0].ToString();

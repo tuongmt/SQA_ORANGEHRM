@@ -1,25 +1,21 @@
 ﻿using NUnit.Framework;
-using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
+using OrangeHRM.Pages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using By = Selenium.WebDriver.Extensions.By;
-using System.Threading;
-using System.Security.Cryptography;
-using OrangeHRM.Pages;
-using OpenQA.Selenium.Chrome;
 
 namespace OrangeHRM.Tests
 {
-	internal class AdminTests
+	internal class MyInfoTests
 	{
 		private IWebDriver _driver;
 		private IJavaScriptExecutor _js;
 
-		public AdminTests() {}
+		public MyInfoTests() { }
 
 		[SetUp]
 		public void Setup()
@@ -36,18 +32,18 @@ namespace OrangeHRM.Tests
 			_driver.Quit();
 		}
 
-		[Test, Category("Admin")]
+		[Test]
 		[TestCaseSource(typeof(ExcelDataProvider), "GetAddJobTitleDatasFromExcel")]
-		public void ExecAdmin_AddJobTitle(string username, string password, string jobTitle)
+		public void UseAdminTests(string username, string password, string jobTitle)
 		{
 			LoginPage loginPage = new LoginPage(_driver, _js);
-			AdminPage adminPage = new AdminPage(_driver, _js);
+			MyInfoPage myInfoPage = new MyInfoPage(_driver, _js);
 
 			loginPage.GetAPI();
 
 			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			adminPage.Admin_AddJobTitle(jobTitle);
+			myInfoPage.Admin_AddJobTitle(jobTitle);
 		}
 	}
 }
