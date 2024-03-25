@@ -32,9 +32,9 @@ namespace OrangeHRM.Tests
 			_driver.Quit();
 		}
 
-		[Test]
-		[TestCaseSource(typeof(ExcelDataProvider), "GetAddJobTitleDatasFromExcel")]
-		public void UseAdminTests(string username, string password, string jobTitle)
+		[Test, Category("MyInfo")]
+		[TestCaseSource(typeof(ExcelDataProvider), "GetChangeProfilePictureDatasFromExcel")]
+		public void ExecMyInfo_ChangeProfilePicture(string username, string password, string path)
 		{
 			LoginPage loginPage = new LoginPage(_driver, _js);
 			MyInfoPage myInfoPage = new MyInfoPage(_driver, _js);
@@ -43,7 +43,26 @@ namespace OrangeHRM.Tests
 
 			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
-			myInfoPage.Admin_AddJobTitle(jobTitle);
+			myInfoPage.FlowEnteringMyInfo();
+			myInfoPage.MyInfo_ChangeProfilePicture(path);
+		}
+
+		[Test, Category("MyInfo")]
+		[TestCaseSource(typeof(ExcelDataProvider), "GetPersonalDetailsDatasFromExcel")]
+		public void ExecMyInfo_EditPersonalDetails(string username, string password, string firstName, string middleName,
+			string lastName, string employeeId, string otherId, string licenseNumber, string licenseExpiryDate, string nationality,
+			string maritalStatus, string dob, string gender)
+		{
+			LoginPage loginPage = new LoginPage(_driver, _js);
+			MyInfoPage myInfoPage = new MyInfoPage(_driver, _js);
+
+			loginPage.GetAPI();
+
+			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
+
+			myInfoPage.FlowEnteringMyInfo();
+			myInfoPage.MyInfo_EditPersonalDetails(firstName, middleName, lastName, employeeId, otherId, licenseNumber,
+				licenseExpiryDate, nationality, maritalStatus, dob, gender);
 		}
 	}
 }

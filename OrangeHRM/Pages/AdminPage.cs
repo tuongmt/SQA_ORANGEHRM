@@ -22,15 +22,17 @@ namespace OrangeHRM.Pages
 			this._js = js;
 		}
 
-		public void Admin_AddJobTitle(string jobTitle)
+		public void FlowEnteringAdmin()
 		{
-			// Wait and Click Admin in dashboard list
 			{
 				WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
 				wait.Until(driver => _driver.FindElements(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(1)")).Count > 0);
 			}
 			_driver.FindElement(By.CssSelector(".oxd-main-menu-item-wrapper:nth-child(1)")).Click();
+		}
 
+		public void Admin_AddJobTitle(string jobTitle)
+		{
 			// Wait and Click job from navbar
 			{
 				WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
@@ -69,17 +71,51 @@ namespace OrangeHRM.Pages
 			}
 			catch (WebDriverTimeoutException)
 			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddJobTitle", "Fail (Job Title is exist)", 5);
+				var isExist = _driver.FindElement(By.JQuerySelector("form > div:nth-child(1) > div > span"));
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddJobTitle", "Job Title Name " + isExist.Text, 5);
+				Assert.Fail("Job Title Name " + isExist.Text);
 				_driver.Close();
-				Assert.Fail("Job Title is exist !");
 			}
 
 			// Click save
 			_driver.FindElement(By.CssSelector("button.oxd-button.oxd-button--medium.oxd-button--secondary.orangehrm-left-space")).Click();
 
-			ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddJobTitle", "Pass", 5);
-			_driver.Close();
-			Assert.Pass("Add job title success");
+			//Check Job Title required
+			if(string.IsNullOrWhiteSpace(jobTitle) || string.IsNullOrEmpty(jobTitle))
+			{
+				try
+				{
+					{
+						WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+						wait.Until(driver => _driver.FindElements(By.JQuerySelector("form > div:nth-child(1) > div > span")).Count == 0);
+					}
+				}
+				catch (WebDriverTimeoutException)
+				{
+					var isRequired = _driver.FindElement(By.JQuerySelector("form > div:nth-child(1) > div > span")).Text;
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddJobTitle", "Job Title Name " + isRequired, 5);
+					Assert.Fail("Job Title Name " + isRequired);
+					_driver.Close();
+				}
+			}
+
+			// Return to job title page
+			try {
+				{
+					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+					wait.Until(driver => _driver.FindElements(By.JQuerySelector(".orangehrm-header-container > h6")).Count > 0);
+				}
+				var jobTitlePage = _driver.FindElement(By.JQuerySelector(".orangehrm-header-container > h6"));
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddJobTitle", "Return to " + jobTitlePage.Text + " page when adding successfully", 5);
+				Assert.That("Job Titles", Is.EqualTo(jobTitlePage.Text));
+				_driver.Close();
+			}
+			catch (WebDriverTimeoutException)
+			{
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddJobTitle", "Don't return to job title page", 5);
+				Assert.Fail("Don't return to job title page");
+				_driver.Close();
+			}
 		}
 	}
 }

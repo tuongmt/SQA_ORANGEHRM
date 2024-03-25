@@ -1,14 +1,19 @@
 ﻿using NUnit.Framework;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using OrangeHRM.Pages;
+using System.Security.Cryptography;
+using System.Xml.Linq;
+using OpenQA.Selenium.Support.Extensions;
+using OpenQA.Selenium.Support.UI;
 using By = Selenium.WebDriver.Extensions.By;
+using OpenQA.Selenium.Interactions;
 
 namespace OrangeHRM.Pages
 {
@@ -17,127 +22,194 @@ namespace OrangeHRM.Pages
 		public IWebDriver _driver;
 		private IJavaScriptExecutor _js;
 
-		public LoginPage() { }
-
 		public LoginPage(IWebDriver driver, IJavaScriptExecutor js)
 		{
 			this._driver = driver;
 			this._js = js;
 		}
 
-		[TearDown]
-		public void TearDown()
-		{
-			_driver.Quit();
-		}
-
 		[Test]
 		public void GetAPI()
 		{
-			try
-			{
-				string URL = "http://localhost/orangehrm-5.4/orangehrm-5.4/web/index.php/auth/login";
-				_driver.Navigate().GoToUrl(URL);
-				_driver.Manage().Window.Position = new System.Drawing.Point(0, 0);
-				_driver.Manage().Window.Size = new System.Drawing.Size(1000, 825);
-				Thread.Sleep(3000);
-				//driver.Close();
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine("Error from GetAPI " + ex.ToString());
-			}
+			string URL = "http://localhost/orangehrm-5.4/orangehrm-5.4/web/index.php/auth/login";
+			_driver.Navigate().GoToUrl(URL);
+			_driver.Manage().Window.Position = new System.Drawing.Point(0, 0);
+			_driver.Manage().Window.Size = new System.Drawing.Size(1000, 825);
+			Thread.Sleep(3000);
+			//driver.Close();
 		}
 
-		
+		[Test, Category("Login")]
 		public void Login_WithValidUser_NavigatesToDashboardPage(string username, string password)
 		{
 			_driver.FindElement(By.Name("username")).SendKeys(username);
 			_driver.FindElement(By.Name("password")).SendKeys(password);
 			_driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
+			// Check input required username when login
+			try
+			{
+				{
+					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+					wait.Until(driver => _driver.FindElements(By.CssSelector("form > div:nth-child(2) > div > span")).Count == 0);
+				}
+			}
+			catch (WebDriverTimeoutException)
+			{
+				var usernameErrorMessage = _driver.FindElement(By.JQuerySelector("form > div:nth-child(2) > div > span"));
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "ValidUser", usernameErrorMessage.Text, 4);
+				Assert.Fail("Username " + usernameErrorMessage.Text);
+				_driver.Close();
+			}
+
+			// Check input required password when login
+			try
+			{
+				{
+					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+					wait.Until(driver => _driver.FindElements(By.CssSelector("form > div:nth-child(3) > div > span")).Count == 0);
+				}
+			}
+			catch (WebDriverTimeoutException)
+			{
+				var passwordErrorMessage = _driver.FindElement(By.JQuerySelector("form > div:nth-child(3) > div > span"));
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "ValidUser", passwordErrorMessage.Text, 4);
+				Assert.Fail("Password " + passwordErrorMessage.Text);
+				_driver.Close();
+			}
+
+
+			// Check error message when login fail
 			{
 				WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
 				wait.Until(driver => _driver.FindElements(By.CssSelector(".oxd-alert-content.oxd-alert-content--error > p")).Count == 0);
 			}
 			try
 			{
-				// Check error message when login fail
 				if (_driver.FindElement(By.JQuerySelector(".oxd-alert-content.oxd-alert-content--error > p")).Displayed)
 				{
-					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "ValidUser", "Fail (Invalid credentials)", 4);
+					var invalidCredentials = _driver.FindElement(By.JQuerySelector(".oxd-alert-content.oxd-alert-content--error > p"));
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "ValidUser", invalidCredentials.Text, 4);
+					Assert.Fail(invalidCredentials.Text);
 					_driver.Close();
-					Assert.Fail("Username or password is wrong, check again");
 				}
 			}
-			catch (NoSuchElementException) { }
-
-			// If login success redirects to homepage and see userdropdown-tab then login success
+			catch (NoSuchElementException)
 			{
-				WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => _driver.FindElements(By.CssSelector(".oxd-sidepanel-body > ul > li:nth-child(8)")).Count > 0);
+				
 			}
 
-			// Check visible in Dashboard Page
-			if (_driver.FindElements(By.CssSelector(".oxd-sidepanel-body > ul > li:nth-child(8)")).Count == 0)
+			// If login success redirects to homepage and see dashboard
+			try
 			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "ValidUser", "Fail (Not redirect to dashboard page)", 4);
+				{
+					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+					wait.Until(driver => _driver.FindElements(By.CssSelector(".oxd-sidepanel-body > ul > li:nth-child(8) > a > span")).Count > 0);
+				}
+			}
+			catch (WebDriverTimeoutException)
+			{
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "ValidUser", "Not redirect to Dashboard page", 4);
+				Assert.Fail("Not redirect to Dashboard page");
 				_driver.Close();
-				Assert.Pass("Test Login with valid user fail because not redirect to dashboard page.");
-
 			}
 
-			//When not run other function then turn on it
-			//ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "ValidUser", "Pass", 4);
-			//driver.Close();
-			//Assert.Pass("Test Login with valid user success");
+			// Only using when running this function
+			//var dashBoardPage = _driver.FindElement(By.JQuerySelector(".oxd-sidepanel-body > ul > li:nth-child(8) > a > span"));
+			//string textContent = dashBoardPage.Text;
+			//ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "ValidUser", "Redirect to " + textContent + " page", 4);
+			//Assert.That("Redirect to Dashboard page", Is.EqualTo("Redirect to " + textContent + " page"));
+			//_driver.Close();
 		}
 
 		[Test, Category("Login")]
 		public void Login_WithInvalidUser_ShowsErrorMessage(string username, string password)
 		{
-			//GetAPI();
-
 			_driver.FindElement(By.Name("username")).SendKeys(username);
 			_driver.FindElement(By.Name("password")).SendKeys(password);
 			_driver.FindElement(By.CssSelector("button[type='submit']")).Click();
-			Thread.Sleep(3000);
 
-			// Wait Error message and check invalid credentials
-			try
-			{
+			if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(username)) {
+				// Check input required username when login
+				try
 				{
-					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
-					wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-alert-content.oxd-alert-content--error > p")).Count > 0);
+					{
+						WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+						wait.Until(driver => _driver.FindElements(By.CssSelector("form > div:nth-child(2) > div > span")).Count > 0);
+					}
+				}
+				catch (WebDriverTimeoutException)
+				{
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "InvalidUser", "It's valid credentials", 4);
+					Assert.Fail("It's valid credentials");
+					_driver.Close();
+				}
+
+				// Error message displayed -> success
+				if (_driver.FindElement(By.JQuerySelector("form > div:nth-child(2) > div > span")).Displayed)
+				{
+					var usernameErrorMessage = _driver.FindElement(By.JQuerySelector("form > div:nth-child(2) > div > span"));
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "InvalidUser", usernameErrorMessage.Text, 4);
+					Assert.That(usernameErrorMessage.Text, Is.EqualTo("Required"));
+					_driver.Close();
 				}
 			}
-			catch (WebDriverTimeoutException)
+			else if(string.IsNullOrWhiteSpace(password) || string.IsNullOrEmpty(password))
 			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "InvalidUser", "Fail (It's valid credentials)", 4);
-				_driver.Close();
-				Assert.Fail("It's valid credentials");
-			}
-			catch (NoSuchElementException)
-			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "InvalidUser", "Fail (It's valid credentials)", 4);
-				_driver.Close();
-				Assert.Fail("It's valid credentials");
-			}
+				// Check input required password when login
+				try
+				{
+					{
+						WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+						wait.Until(driver => _driver.FindElements(By.CssSelector("form > div:nth-child(3) > div > span")).Count > 0);
+					}
+				}
+				catch (WebDriverTimeoutException)
+				{
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "InvalidUser", "It's valid credentials", 4);
+					Assert.Fail("It's valid credentials");
+					_driver.Close();
+				}
 
-			// Error message displayed -> success
-			if (_driver.FindElement(By.JQuerySelector(".oxd-alert-content.oxd-alert-content--error > p")).Displayed)
+				// Error message displayed -> success
+				if (_driver.FindElement(By.JQuerySelector("form > div:nth-child(3) > div > span")).Displayed)
+				{
+					var passwordErrorMessage = _driver.FindElement(By.JQuerySelector("form > div:nth-child(3) > div > span"));
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "InvalidUser", passwordErrorMessage.Text, 4);
+					Assert.That(passwordErrorMessage.Text, Is.EqualTo("Required"));
+					_driver.Close();
+				}
+			}
+			else
 			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "InvalidUser", "Pass", 4);
-				_driver.Close();
-				Assert.Pass("Test Login with invalid user success !");
+				// Wait Error message and check invalid credentials
+				try
+				{
+					{
+						WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+						wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-alert-content.oxd-alert-content--error > p")).Count > 0);
+					}
+				}
+				catch (WebDriverTimeoutException)
+				{
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "InvalidUser", "It's valid credentials", 4);
+					Assert.Fail("It's valid credentials"); _driver.Close();
+				}
+
+				// Error message displayed -> success
+				if (_driver.FindElement(By.JQuerySelector(".oxd-alert-content.oxd-alert-content--error > p")).Displayed)
+				{
+					var invalidErrorMessage = _driver.FindElement(By.JQuerySelector(".oxd-alert-content.oxd-alert-content--error > p"));
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "InvalidUser", invalidErrorMessage.Text, 4);
+					Assert.That(invalidErrorMessage.Text, Is.EqualTo("Invalid credentials"));
+					_driver.Close();
+				}
 			}
 		}
 
 		[Test, Category("Login")]
 		public void Logout_FromHomePage_RedirectToLogin(string username, string password)
 		{
-			//Login_WithValidUser_NavigatesToDashboardPage(username, password);
-
 			// Wait and Click user info
 			{
 				WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
@@ -152,18 +224,21 @@ namespace OrangeHRM.Pages
 			}
 			_driver.FindElement(By.CssSelector(".oxd-topbar-header-userarea > ul > li > ul > li:nth-child(4)")).Click();
 
-			// Wait login button in Login page and check visible
+			// Wait login page and check visible
 			{
 				WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
-				wait.Until(driver => driver.FindElements(By.CssSelector(".oxd-form-actions.orangehrm-login-action > button")).Count > 0);
+				wait.Until(driver => driver.FindElements(By.CssSelector(".orangehrm-login-slot > h5")).Count > 0);
 			}
-
-			Thread.Sleep(1000);
-
-			if (_driver.FindElement(By.JQuerySelector(".oxd-form-actions.orangehrm-login-action > button")).Displayed)
+			if(_driver.FindElement(By.JQuerySelector(".orangehrm-login-slot > h5")).Displayed)
 			{
+				var loginPage = _driver.FindElement(By.JQuerySelector(".orangehrm-login-slot > h5"));
+				Assert.That(loginPage.Text + " page", Is.EqualTo("Login page"));
 				_driver.Close();
-				Assert.Pass("Test Logout user success !");
+			}
+			else
+			{
+				Assert.Fail("Return another page");
+				_driver.Close();
 			}
 		}
 	}

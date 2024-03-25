@@ -230,5 +230,60 @@ namespace OrangeHRM
 			}
 			return testData;
 		}
+
+		public static IEnumerable<TestCaseData> GetChangeProfilePictureDatasFromExcel()
+		{
+			var testData = new List<TestCaseData>();
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
+			{
+				using (var reader = ExcelReaderFactory.CreateReader(stream))
+				{
+					var result = reader.AsDataSet();
+					var table = result.Tables[9];
+					for (int i = 1; i < table.Rows.Count; i++)
+					{
+						string username = table.Rows[i][0].ToString();
+						string password = table.Rows[i][1].ToString();
+						string path = table.Rows[i][2].ToString();
+						testData.Add(new TestCaseData(username, password, path));
+					}
+				}
+			}
+			return testData;
+		}
+
+		public static IEnumerable<TestCaseData> GetPersonalDetailsDatasFromExcel()
+		{
+			var testData = new List<TestCaseData>();
+			using (var stream = File.Open("TestCaseData_Tuong.xlsx", FileMode.Open, FileAccess.Read))
+			{
+				using (var reader = ExcelReaderFactory.CreateReader(stream))
+				{
+					var result = reader.AsDataSet();
+					var table = result.Tables[10];
+					for (int i = 1; i < table.Rows.Count; i++)
+					{
+						string username = table.Rows[i][0].ToString();
+						string password = table.Rows[i][1].ToString();
+						string firstName = table.Rows[i][2].ToString();
+						string middleName = table.Rows[i][3].ToString();
+						string lastName = table.Rows[i][4].ToString();
+						string employeeId = table.Rows[i][5].ToString();
+						string otherId = table.Rows[i][6].ToString();
+						string licenseNumber = table.Rows[i][7].ToString();
+						string licenseExpiryDate = table.Rows[i][8].ToString();
+						string nationality = table.Rows[i][9].ToString();
+						string maritalStatus = table.Rows[i][10].ToString();
+						string dob = table.Rows[i][11].ToString();
+						string gender = table.Rows[i][12].ToString();
+
+						testData.Add(new TestCaseData(username, password, firstName, middleName, lastName,
+							employeeId, otherId, licenseNumber, licenseExpiryDate, nationality,
+							maritalStatus, dob, gender));
+					}
+				}
+			}
+			return testData;
+		}
 	}
 }

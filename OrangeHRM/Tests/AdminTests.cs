@@ -44,9 +44,9 @@ namespace OrangeHRM.Tests
 			AdminPage adminPage = new AdminPage(_driver, _js);
 
 			loginPage.GetAPI();
-
 			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
+			adminPage.FlowEnteringAdmin();
 			adminPage.Admin_AddJobTitle(jobTitle);
 		}
 	}

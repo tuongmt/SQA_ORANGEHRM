@@ -45,7 +45,6 @@ namespace OrangeHRM.Tests
 			RecruitmentPage recruitmentPage = new RecruitmentPage(_driver, _js);
 
 			loginPage.GetAPI();
-
 			loginPage.Login_WithValidUser_NavigatesToDashboardPage(username, password);
 
 			recruitmentPage.FlowEnteringVacancies();

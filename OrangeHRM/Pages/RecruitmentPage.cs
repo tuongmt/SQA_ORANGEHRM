@@ -55,13 +55,6 @@ namespace OrangeHRM.Pages
 
 		public void Recruitment_AddVacancy(string vacancyName, string jobTitle, string hiringManager)
 		{
-			//Setup();
-
-			// Login
-			//loginTests.Login_WithValidUser_NavigatesToDashboardPage(username, password);
-
-			//FlowEnteringVacancies();
-
 			// Choose add button
 			{
 				WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
@@ -87,9 +80,10 @@ namespace OrangeHRM.Pages
 			}
 			catch (WebDriverTimeoutException)
 			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Fail (Vacancy Name is exist)", 7);
+				var isExistVN = _driver.FindElement(By.CssSelector("form > div:nth-child(1) > div:nth-child(1) > div > span")).Text;
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Vacancy Name " + isExistVN, 7);
+				Assert.Fail("Vacancy Name " + isExistVN);
 				_driver.Close();
-				Assert.Fail("Vacancy Name is exist !");
 			}
 
 			// Wait and choose option Job Title
@@ -104,9 +98,9 @@ namespace OrangeHRM.Pages
 			}
 			catch (NoSuchElementException)
 			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Fail (Job Title isn't exist)", 7);
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Job Title isn't exist", 7);
+				Assert.Fail("Job Title isn't exist");
 				_driver.Close();
-				Assert.Fail("Job Title isn't exist !");
 			}
 
 			// Fill and Choose option Hiring Manager
@@ -121,22 +115,95 @@ namespace OrangeHRM.Pages
 			}
 			catch (WebDriverTimeoutException)
 			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Fail (Hiring Manager isn't exist)", 7);
+
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Hiring Manager is Invalid" , 7);
+				Assert.Fail("Hiring Manager is Invalid");
 				_driver.Close();
-				Assert.Fail("hiringManager isn't exist !");
 			}
 
 			// Click Save button
 			_driver.FindElement(By.CssSelector("button.oxd-button--secondary.orangehrm-left-space")).Click();
 
-			ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Pass", 7);
-			_driver.Close();
-			Assert.Pass("Add vacancy success !");
+			//Check Vacancy Name required
+			if (string.IsNullOrWhiteSpace(vacancyName) || string.IsNullOrEmpty(vacancyName))
+			{
+				try
+				{
+					{
+						WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+						wait.Until(driver => _driver.FindElements(By.JQuerySelector("form > div:nth-child(1) > div:nth-child(1) > div > span")).Count == 0);
+					}
+				}
+				catch (WebDriverTimeoutException)
+				{
+					var isRequiredVN = _driver.FindElement(By.JQuerySelector("form > div:nth-child(1) > div:nth-child(1) > div > span")).Text;
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Vacancy Name " + isRequiredVN, 7);
+					Assert.Fail("Vacancy Name " + isRequiredVN);
+					_driver.Close();
+				}
+			}
+
+			//Check Job Title required
+			if (string.IsNullOrWhiteSpace(jobTitle) || string.IsNullOrEmpty(jobTitle))
+			{
+				try
+				{
+					{
+						WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+						wait.Until(driver => _driver.FindElements(By.JQuerySelector("form > div:nth-child(1) > div:nth-child(2) > div > span")).Count == 0);
+					}
+				}
+				catch (WebDriverTimeoutException)
+				{
+					var isRequiredJT = _driver.FindElement(By.JQuerySelector("form > div:nth-child(1) > div:nth-child(2) > div > span")).Text;
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Job Title " + isRequiredJT, 7);
+					Assert.Fail("Job Title " + isRequiredJT);
+					_driver.Close();
+				}
+			}
+
+			//Check Hiring Manager required
+			if (string.IsNullOrWhiteSpace(hiringManager) || string.IsNullOrEmpty(hiringManager))
+			{
+				try
+				{
+					{
+						WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+						wait.Until(driver => _driver.FindElements(By.JQuerySelector("form > div:nth-child(3) > div:nth-child(1) > div > span")).Count == 0);
+					}
+				}
+				catch (WebDriverTimeoutException)
+				{
+					var isRequiredJT = _driver.FindElement(By.JQuerySelector("form > div:nth-child(3) > div:nth-child(1) > div > span")).Text;
+					ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Hiring Manager " + isRequiredJT, 7);
+					Assert.Fail("Hiring Manager " + isRequiredJT);
+					_driver.Close();
+				}
+			}
+
+			// Return to Vacancies page when adding successfully
+			try
+			{
+				{
+					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+					wait.Until(driver => _driver.FindElements(By.JQuerySelector(".oxd-table-filter-header-title > h5:nth-child(1)")).Count > 0);
+				}
+				var vacancies = _driver.FindElement(By.JQuerySelector(".oxd-table-filter-header-title > h5:nth-child(1)")).Text;
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Return to " + vacancies + " page when adding success", 7);
+				Assert.That(vacancies, Is.EqualTo("Vacancies"));
+				_driver.Close();
+			}
+			catch (WebDriverTimeoutException)
+			{
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "AddVacancy", "Do not return to Vacancies page when adding success", 7);
+				Assert.Fail("Do not return to Vacancies page when adding success");
+				_driver.Close();
+			}
+			
 		}
 
 		public void Recruitment_DeleteVacancy(string vacancyNo)
 		{
-
 			// Click delete button from vacancy card and check vacancyNo (item in this) exist or not.
 			{
 				WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
@@ -146,22 +213,34 @@ namespace OrangeHRM.Pages
 			{
 				_driver.FindElement(By.CssSelector($"div:nth-child({vacancyNo}) > div > div > div.card-header-slot > div.card-item.card-header-slot-content.--right > div > div > button:nth-child(1)")).Click();
 
-				// Click Yes, delete oxd-button oxd-button--medium oxd-button--text orangehrm-button-margin
+				// Click Yes, delete
 				{
 					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
 					wait.Until(_driver => _driver.FindElements(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--label-danger.orangehrm-button-margin")).Count > 0);
 				}
 				_driver.FindElement(By.CssSelector(".oxd-button.oxd-button--medium.oxd-button--label-danger.orangehrm-button-margin")).Click();
 
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "DeleteVacancy", "Pass", 5);
+				// Return to Vacancies page
+				{
+					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+					wait.Until(_driver => _driver.FindElements(By.CssSelector(".oxd-table-filter-header > div.oxd-table-filter-header-title > h5")).Count > 0);
+				}
+				var vacancies = _driver.FindElement(By.CssSelector(".oxd-table-filter-header > div.oxd-table-filter-header-title > h5")).Text;
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "DeleteVacancy", "Return to " + vacancies + " page when deleting successfully", 5);
+				Assert.That(vacancies, Is.EqualTo("Vacancies"));
 				_driver.Close();
-				Assert.Pass("Delete vacancy success");
 			}
 			catch (NoSuchElementException)
 			{
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "DeleteVacancy", "Fail (Vacancy No not found)", 5);
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "DeleteVacancy", "Vacancy is not found", 5);
+				Assert.Fail("Vacancy is not found");
 				_driver.Close();
-				Assert.Fail("vacancyNo not found. Delete vacancy fail !");
+			}
+			catch (InvalidSelectorException)
+			{
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "DeleteVacancy", "Vacancy is not found", 5);
+				Assert.Fail("Vacancy is not found");
+				_driver.Close();
 			}
 		}
 
@@ -257,8 +336,8 @@ namespace OrangeHRM.Pages
 			catch (NoSuchElementException)
 			{
 				_driver.Close();
-				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "DeleteCandidate", "Fail (Candidate No not found)", 5);
-				Assert.Fail("Candidate No not found !");
+				ExcelDataProvider.WriteResultToExcel("TestCaseData_Tuong.xlsx", "DeleteCandidate", "Candidate not found", 5);
+				Assert.Fail("Candidate not found");
 			}
 
 			//Wait popup showing and click Yes, delete
@@ -273,7 +352,6 @@ namespace OrangeHRM.Pages
 			Assert.Pass("Delete Candidate success !");
 		}
 
-		//Unsuccessful
 		public void Recruitment_EditVacancy(string vacancyNo, string vacancyName, string jobTitle, string hiringManager)
 		{
 			// Wait and Choose edit button with item want edit
@@ -348,7 +426,7 @@ namespace OrangeHRM.Pages
 			try
 			{
 				{
-					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(10));
+					WebDriverWait wait = new WebDriverWait(_driver, System.TimeSpan.FromSeconds(20));
 					wait.Until(_driver => _driver.FindElements(By.JQuerySelector($"form > div:nth-child(3) > div:nth-child(1) > div > div:nth-child(2) > div > div.oxd-autocomplete-dropdown.--positon-bottom > div > span:contains('{hiringManager}')")).Count > 0);
 				}
 				_driver.FindElement(By.JQuerySelector($"form > div:nth-child(3) > div:nth-child(1) > div > div:nth-child(2) > div > div.oxd-autocomplete-dropdown.--positon-bottom > div > span:contains('{hiringManager}')")).Click();
@@ -368,8 +446,6 @@ namespace OrangeHRM.Pages
 			Assert.Pass("Edit vacancy success !");
 		}
 
-		[Test, Category("Recruitment")]
-		[TestCaseSource(typeof(ExcelDataProvider), "GetViewCandidateDatasFromExcel")]
 		public void Recruitment_ViewCandidate(string candidateNo)
 		{
 
